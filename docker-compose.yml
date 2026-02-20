@@ -1,0 +1,24 @@
+services:
+  mymongo:
+    image: mongo:4.0
+    container_name: mongo_container
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+  myfastapi:
+    build: .
+    container_name: fastapi_container
+    ports:
+      - 8080:8000
+    environment:
+      - MONGO_URI=mongodb://mymongo:27017
+    depends_on:
+      mymongo:
+        condition: service_healthy
+
+volumes:
+  mongo_data:
